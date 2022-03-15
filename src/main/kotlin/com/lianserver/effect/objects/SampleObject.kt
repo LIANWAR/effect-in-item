@@ -4,9 +4,9 @@
  *  Licensed under the General Public License, Version 3.0. (https://opensource.org/licenses/gpl-3.0/)
  */
 
-package com.baehyeonwoo.sample.plugin.objects
+package com.lianserver.effect.objects
 
-import com.baehyeonwoo.sample.plugin.SamplePluginMain
+import com.lianserver.effect.SamplePluginMain
 import org.bukkit.plugin.Plugin
 
 /***
