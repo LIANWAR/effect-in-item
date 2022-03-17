@@ -15,6 +15,8 @@ dependencies {
     compileOnly("io.github.monun:tap-api:${project.properties["tapVersion"]}")
     compileOnly("io.github.monun:kommand-api:${project.properties["kommandVersion"]}")
     implementation("com.elmakers.mine.bukkit:EffectLib:9.4")
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.4")
 //    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
 //    compileOnly("io.github.monun:heartbeat-coroutines:0.0.3")
 }
