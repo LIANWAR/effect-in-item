@@ -9,23 +9,17 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import com.lianserver.effect.interfaces.EffectInterface
 import com.lianserver.effect.interfaces.KommandInterface
 import io.github.monun.kommand.Kommand.Companion.register
-import io.github.monun.kommand.StringType
-import io.github.monun.kommand.getValue
-import io.github.monun.kommand.kommand
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 
-class EffectMenuKommand: KommandInterface {
+class EffectToolsKommand: KommandInterface {
     override fun kommand() {
-        register(getInstance(), "effects") {
+        register(getInstance(), "effitem"){
+            requires { player.isOp }
             executes {
                 val guiEffectList = ChestGui(4, "이펙트 목록")
                 guiEffectList.setOnGlobalClick { e: InventoryClickEvent ->
@@ -37,12 +31,13 @@ class EffectMenuKommand: KommandInterface {
                         val eff = getInstance().loadedEffects[it]!! as EffectInterface
 
                         GuiItem(
-                            namedItemStack(Material.ENCHANTED_BOOK, text(eff.name).color(NamedTextColor.GOLD), eff.description.map {
-                                text(it).color(NamedTextColor.AQUA)
+                            namedItemStack(Material.ENCHANTED_BOOK, Component.text(eff.name).color(NamedTextColor.GOLD), eff.description.map {
+                                Component.text(it).color(NamedTextColor.AQUA)
                             })
                         ){
-                            getInstance().playerEffects[player.uniqueId.toString()] = eff.id
-                            it.isCancelled = true
+                            player.inventory.addItem(
+                                it.currentItem!!
+                            )
                         }
                     }
                 )
@@ -50,7 +45,7 @@ class EffectMenuKommand: KommandInterface {
 
                 val rw = ItemStack(Material.RED_WOOL)
                 var meta = rw.itemMeta
-                meta.displayName(text("이전").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
+                meta.displayName(Component.text("이전").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
                 rw.itemMeta = meta
 
                 navigation.addItem(
@@ -103,7 +98,7 @@ class EffectMenuKommand: KommandInterface {
                 val background = OutlinePane(0, 0, 9, 4)
                 val stack = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
                 meta = stack.itemMeta
-                meta.displayName(text(""))
+                meta.displayName(Component.text(""))
                 stack.itemMeta = meta
 
                 background.addItem(GuiItem(stack))
@@ -120,6 +115,4 @@ class EffectMenuKommand: KommandInterface {
             }
         }
     }
-
-    init {}
 }
