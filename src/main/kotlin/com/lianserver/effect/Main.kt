@@ -9,6 +9,8 @@ package com.lianserver.effect
 import com.lianserver.effect.interfaces.EffectInterface
 import com.lianserver.effect.interfaces.KommandInterface
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.event.EventHandler
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.Reflections
 import java.io.File
@@ -27,8 +29,8 @@ class Main : JavaPlugin() {
     private val configFile = File(dataFolder, "config.yml")
     lateinit var config: YamlConfiguration
     lateinit var userEffDB: YamlConfiguration
-    lateinit var loadedEffects: MutableMap<String, in EffectInterface>
-    val playerEffects = mutableMapOf<String, String>()
+    lateinit var loadedEffects: MutableMap<String, EffectInterface>
+    lateinit var playerEffectConfData: YamlConfiguration
 
     override fun onEnable() {
         instance = this
@@ -36,6 +38,7 @@ class Main : JavaPlugin() {
 
         config = YamlConfiguration.loadConfiguration(configFile)
         userEffDB = YamlConfiguration.loadConfiguration(File(dataFolder, "db.yml"))
+        playerEffectConfData = YamlConfiguration.loadConfiguration(File(dataFolder, "pldb.yml"))
 
         var reflections = Reflections("com.lianserver.effect.command")
 
@@ -60,12 +63,22 @@ class Main : JavaPlugin() {
             val inst = clazz.getDeclaredConstructor().newInstance()
             server.pluginManager.registerEvents(inst, this)
 
-            loadedEffects[inst.id] = inst
+            loadedEffects[inst.meta.id] = inst
         }
     }
 
     override fun onDisable() {
         config.save(configFile)
         userEffDB.save(File(dataFolder, "db.yml"))
+        playerEffectConfData.save(File(dataFolder, "pldb.yml"))
+    }
+
+    @EventHandler
+    fun onJoin(e: PlayerJoinEvent){
+        if(playerEffectConfData.getStringList(e.player.uniqueId.toString()).isNotEmpty()){
+            playerEffectConfData.getStringList(e.player.uniqueId.toString()).forEach {
+                loadedEffects[it]!!.effect(e.player)
+            }
+        }
     }
 }

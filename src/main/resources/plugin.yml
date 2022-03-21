@@ -3,5 +3,4 @@ main: $pluginMain
 api-version: "1.18"
 version: $version
 libraries:
-  - io.github.monun:kommand:$kommandVersion
-  - io.github.monun:tap:$tapVersion
+  - io.github.monun:kommand-core:2.10.0

@@ -31,7 +31,7 @@ class EffectToolsKommand: KommandInterface {
                         val eff = getInstance().loadedEffects[it]!! as EffectInterface
 
                         GuiItem(
-                            namedItemStack(Material.ENCHANTED_BOOK, Component.text(eff.name).color(NamedTextColor.GOLD), eff.description.map {
+                            namedItemStack(Material.ENCHANTED_BOOK, Component.text(eff.meta.name).color(NamedTextColor.GOLD), eff.meta.description.map {
                                 Component.text(it).color(NamedTextColor.AQUA)
                             })
                         ){

@@ -34,14 +34,17 @@ class EffectMenuKommand: KommandInterface {
                 val paneItem = PaginatedPane(1, 1, 7, 2)
                 paneItem.populateWithGuiItems(
                     getInstance().userEffDB.getStringList(player.uniqueId.toString()).map {
-                        val eff = getInstance().loadedEffects[it]!! as EffectInterface
+                        val eff = getInstance().loadedEffects[it]!!
 
                         GuiItem(
-                            namedItemStack(Material.ENCHANTED_BOOK, text(eff.name).color(NamedTextColor.GOLD), eff.description.map {
+                            namedItemStack(Material.ENCHANTED_BOOK, text(eff.meta.name).color(NamedTextColor.GOLD), eff.meta.description.map {
                                 text(it).color(NamedTextColor.AQUA)
                             })
                         ){
-                            getInstance().playerEffects[player.uniqueId.toString()] = eff.id
+                            val l = getInstance().playerEffectConfData.getStringList(player.uniqueId.toString())
+                            l.add(eff.meta.id)
+
+                            getInstance().playerEffectConfData.set(player.uniqueId.toString(), l)
                             it.isCancelled = true
                         }
                     }

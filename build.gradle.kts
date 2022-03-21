@@ -12,11 +12,9 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib"))
     compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
-    compileOnly("io.github.monun:tap-api:${project.properties["tapVersion"]}")
-    compileOnly("io.github.monun:kommand-api:${project.properties["kommandVersion"]}")
-    implementation("com.elmakers.mine.bukkit:EffectLib:9.4")
+    compileOnly("io.github.monun:kommand-core:2.10.0")
     implementation("org.reflections:reflections:0.10.2")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.4")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.5")
 //    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
 //    compileOnly("io.github.monun:heartbeat-coroutines:0.0.3")
 }
