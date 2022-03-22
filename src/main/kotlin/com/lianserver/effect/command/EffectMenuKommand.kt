@@ -42,7 +42,20 @@ class EffectMenuKommand: KommandInterface {
                             })
                         ){
                             val l = getInstance().playerEffectConfData.getStringList(player.uniqueId.toString())
-                            l.add(eff.meta.id)
+                            if(!l.contains(eff.meta.id)){
+                                l.add(eff.meta.id)
+                                player.sendMessage(userText("${eff.meta.name} 효과를 켰습니다."))
+
+                                getInstance().loadedEffects[eff.meta.id]?.effect(player)
+                            }
+                            else {
+                                l.remove(eff.meta.id)
+                                getInstance().playerEffTasks[player.uniqueId.toString()]!![eff.meta.id]!!.forEach {
+                                    getInstance().server.scheduler.cancelTask(it)
+                                }
+                            }
+
+                            player.sendMessage(userText("${eff.meta.name} 효과를 껐습니다."))
 
                             getInstance().playerEffectConfData.set(player.uniqueId.toString(), l)
                             it.isCancelled = true

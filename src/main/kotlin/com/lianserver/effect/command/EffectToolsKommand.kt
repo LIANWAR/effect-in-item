@@ -35,8 +35,21 @@ class EffectToolsKommand: KommandInterface {
                                 Component.text(it).color(NamedTextColor.AQUA)
                             })
                         ){
+                            val l = mutableListOf<Component>(
+                                Component.text("(id=${eff.meta.id})"),
+                                Component.text("")
+                            )
+
+                            l.addAll(eff.meta.description.map {
+                                Component.text(it).color(NamedTextColor.AQUA)
+                            })
+
                             player.inventory.addItem(
-                                it.currentItem!!
+                                namedItemStack(
+                                    Material.ENCHANTED_BOOK,
+                                    Component.text("효과: ${eff.meta.name}").color(NamedTextColor.GOLD),
+                                    l
+                                )
                             )
                         }
                     }

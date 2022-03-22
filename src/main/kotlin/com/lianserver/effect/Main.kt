@@ -8,8 +8,12 @@ package com.lianserver.effect
 
 import com.lianserver.effect.interfaces.EffectInterface
 import com.lianserver.effect.interfaces.KommandInterface
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.Material
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.Reflections
@@ -19,7 +23,7 @@ import java.io.File
  * @author AlphaGot
  */
 
-class Main : JavaPlugin() {
+class Main : JavaPlugin(), Listener {
 
     companion object {
         lateinit var instance: Main
@@ -31,6 +35,7 @@ class Main : JavaPlugin() {
     lateinit var userEffDB: YamlConfiguration
     lateinit var loadedEffects: MutableMap<String, EffectInterface>
     lateinit var playerEffectConfData: YamlConfiguration
+    var playerEffTasks: MutableMap<String, MutableMap<String, MutableList<Int>>> = mutableMapOf()
 
     override fun onEnable() {
         instance = this
@@ -61,10 +66,13 @@ class Main : JavaPlugin() {
             clazz.getDeclaredConstructor().trySetAccessible()
 
             val inst = clazz.getDeclaredConstructor().newInstance()
-            server.pluginManager.registerEvents(inst, this)
+            if(clazz.interfaces.any { it.simpleName == "Listener" }) server.pluginManager.registerEvents(inst, this)
+            else println(clazz.interfaces)
 
             loadedEffects[inst.meta.id] = inst
         }
+
+        server.pluginManager.registerEvents(this, this)
     }
 
     override fun onDisable() {
@@ -78,6 +86,38 @@ class Main : JavaPlugin() {
         if(playerEffectConfData.getStringList(e.player.uniqueId.toString()).isNotEmpty()){
             playerEffectConfData.getStringList(e.player.uniqueId.toString()).forEach {
                 loadedEffects[it]!!.effect(e.player)
+            }
+        }
+    }
+
+    @EventHandler
+    fun onUseEffectBook(e: PlayerInteractEvent){
+        if(e.hasItem()){
+            if(e.item!!.type == Material.ENCHANTED_BOOK){
+                if(e.item!!.hasItemMeta()){
+                    if(e.item!!.itemMeta.hasLore()){
+                        val c = PlainTextComponentSerializer.plainText().serialize(e.item!!.itemMeta.lore()!![0]!!)
+
+                        if(c.contains("(id=")){
+                            val id = c.split("=")[1].replace(")", "")
+
+                            if(userEffDB.isSet(e.player.uniqueId.toString())){
+                                val uu = userEffDB.getStringList(e.player.uniqueId.toString())
+
+                                if(uu.contains(id)) {
+                                    return
+                                }
+
+                                uu.add(id)
+
+                                userEffDB.set(e.player.uniqueId.toString(), uu)
+                            }
+                            else {
+                                userEffDB.set(e.player.uniqueId.toString(), listOf(id))
+                            }
+                        }
+                    }
+                }
             }
         }
     }
