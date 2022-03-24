@@ -1,4 +1,4 @@
-package com.lianserver.effect.command
+package com.lianserver.effect.commands
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
@@ -6,20 +6,20 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
 import com.github.stefvanschie.inventoryframework.pane.Pane
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
-import com.lianserver.effect.interfaces.EffectInterface
 import com.lianserver.effect.interfaces.KommandInterface
 import io.github.monun.kommand.Kommand.Companion.register
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
-class EffectToolsKommand: KommandInterface {
+class EffectMenuKommand: KommandInterface {
     override fun kommand() {
-        register(getInstance(), "effitem"){
-            requires { player.isOp }
+        register(getInstance(), "effects") {
             executes {
                 val guiEffectList = ChestGui(4, "이펙트 목록")
                 guiEffectList.setOnGlobalClick { e: InventoryClickEvent ->
@@ -28,29 +28,31 @@ class EffectToolsKommand: KommandInterface {
                 val paneItem = PaginatedPane(1, 1, 7, 2)
                 paneItem.populateWithGuiItems(
                     getInstance().userEffDB.getStringList(player.uniqueId.toString()).map {
-                        val eff = getInstance().loadedEffects[it]!! as EffectInterface
+                        val eff = getInstance().loadedEffects[it]!!
 
                         GuiItem(
-                            namedItemStack(Material.ENCHANTED_BOOK, Component.text(eff.meta.name).color(NamedTextColor.GOLD), eff.meta.description.map {
-                                Component.text(it).color(NamedTextColor.AQUA)
+                            namedItemStack(Material.ENCHANTED_BOOK, text(eff.meta.name).color(NamedTextColor.GOLD), eff.meta.description.map {
+                                text(it).color(NamedTextColor.AQUA)
                             })
                         ){
-                            val l = mutableListOf<Component>(
-                                Component.text("(id=${eff.meta.id})"),
-                                Component.text("")
-                            )
+                            val l = getInstance().playerEffectConfData.getStringList(player.uniqueId.toString())
+                            if(!l.contains(eff.meta.id)){
+                                l.add(eff.meta.id)
+                                player.sendMessage(userText("${eff.meta.name}${ChatColor.WHITE} 효과를 켰습니다."))
 
-                            l.addAll(eff.meta.description.map {
-                                Component.text(it).color(NamedTextColor.AQUA)
-                            })
+                                getInstance().loadedEffects[eff.meta.id]?.effect(player)
+                            }
+                            else {
+                                l.remove(eff.meta.id)
+                                getInstance().playerEffTasks[player.uniqueId.toString()]!![eff.meta.id]!!.forEach {
+                                    getInstance().server.scheduler.cancelTask(it)
+                                }
 
-                            player.inventory.addItem(
-                                namedItemStack(
-                                    Material.ENCHANTED_BOOK,
-                                    Component.text("효과: ${eff.meta.name}").color(NamedTextColor.GOLD),
-                                    l
-                                )
-                            )
+                                player.sendMessage(userText("${eff.meta.name}${ChatColor.WHITE} 효과를 껐습니다."))
+                            }
+
+                            getInstance().playerEffectConfData.set(player.uniqueId.toString(), l)
+                            it.isCancelled = true
                         }
                     }
                 )
@@ -58,7 +60,7 @@ class EffectToolsKommand: KommandInterface {
 
                 val rw = ItemStack(Material.RED_WOOL)
                 var meta = rw.itemMeta
-                meta.displayName(Component.text("이전").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
+                meta.displayName(text("이전").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
                 rw.itemMeta = meta
 
                 navigation.addItem(
@@ -111,7 +113,7 @@ class EffectToolsKommand: KommandInterface {
                 val background = OutlinePane(0, 0, 9, 4)
                 val stack = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
                 meta = stack.itemMeta
-                meta.displayName(Component.text(""))
+                meta.displayName(text(""))
                 stack.itemMeta = meta
 
                 background.addItem(GuiItem(stack))
@@ -128,4 +130,6 @@ class EffectToolsKommand: KommandInterface {
             }
         }
     }
+
+    init {}
 }

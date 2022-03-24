@@ -8,7 +8,9 @@ package com.lianserver.effect
 
 import com.lianserver.effect.interfaces.EffectInterface
 import com.lianserver.effect.interfaces.KommandInterface
+import com.lianserver.effect.interfaces.PrefixedTextInterface
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.EventHandler
@@ -23,15 +25,13 @@ import java.io.File
  * @author AlphaGot
  */
 
-class Main : JavaPlugin(), Listener {
+class Main : JavaPlugin(), Listener, PrefixedTextInterface {
 
     companion object {
         lateinit var instance: Main
             private set
     }
 
-    private val configFile = File(dataFolder, "config.yml")
-    lateinit var config: YamlConfiguration
     lateinit var userEffDB: YamlConfiguration
     lateinit var loadedEffects: MutableMap<String, EffectInterface>
     lateinit var playerEffectConfData: YamlConfiguration
@@ -40,12 +40,10 @@ class Main : JavaPlugin(), Listener {
     override fun onEnable() {
         instance = this
         loadedEffects = mutableMapOf()
-
-        config = YamlConfiguration.loadConfiguration(configFile)
         userEffDB = YamlConfiguration.loadConfiguration(File(dataFolder, "db.yml"))
         playerEffectConfData = YamlConfiguration.loadConfiguration(File(dataFolder, "pldb.yml"))
 
-        var reflections = Reflections("com.lianserver.effect.command")
+        var reflections = Reflections("com.lianserver.effect.commands")
 
         reflections.getSubTypesOf(
             KommandInterface::class.java
@@ -76,7 +74,6 @@ class Main : JavaPlugin(), Listener {
     }
 
     override fun onDisable() {
-        config.save(configFile)
         userEffDB.save(File(dataFolder, "db.yml"))
         playerEffectConfData.save(File(dataFolder, "pldb.yml"))
     }
@@ -93,18 +90,26 @@ class Main : JavaPlugin(), Listener {
     @EventHandler
     fun onUseEffectBook(e: PlayerInteractEvent){
         if(e.hasItem()){
+            println(1)
             if(e.item!!.type == Material.ENCHANTED_BOOK){
+                println(1)
                 if(e.item!!.hasItemMeta()){
+                    println(1)
                     if(e.item!!.itemMeta.hasLore()){
+                        println(1)
                         val c = PlainTextComponentSerializer.plainText().serialize(e.item!!.itemMeta.lore()!![0]!!)
 
                         if(c.contains("(id=")){
+                            println(1)
                             val id = c.split("=")[1].replace(")", "")
 
                             if(userEffDB.isSet(e.player.uniqueId.toString())){
+                                println(1)
                                 val uu = userEffDB.getStringList(e.player.uniqueId.toString())
 
                                 if(uu.contains(id)) {
+                                    println(2)
+                                    e.player.sendMessage(userText("${loadedEffects[id]!!.meta.name}${ChatColor.WHITE} 이펙트가 이미 있습니다."))
                                     return
                                 }
 
@@ -113,8 +118,11 @@ class Main : JavaPlugin(), Listener {
                                 userEffDB.set(e.player.uniqueId.toString(), uu)
                             }
                             else {
+                                println(3)
                                 userEffDB.set(e.player.uniqueId.toString(), listOf(id))
                             }
+
+                            e.player.sendMessage(userText("${loadedEffects[id]!!.meta.name}${ChatColor.WHITE} 이펙트를 획득했습니다."))
                         }
                     }
                 }

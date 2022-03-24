@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.20-M1"
+    id("com.github.johnrengelman.shadow") version "2.0.2"
 }
 
 repositories {
@@ -19,6 +20,9 @@ dependencies {
 //    compileOnly("io.github.monun:heartbeat-coroutines:0.0.3")
 }
 
+val shade = configurations.create("shade")
+shade.extendsFrom(configurations.implementation.get())
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
@@ -30,9 +34,20 @@ tasks {
         filteringCharset = "UTF-8"
     }
     register<Jar>("outputJar") {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
         archiveBaseName.set(project.name)
         archiveClassifier.set("")
         archiveVersion.set("")
+
+        from(
+            shade.map {
+                if (it.isDirectory)
+                    it
+                else
+                    zipTree(it)
+            }
+        )
 
         from(sourceSets["main"].output)
 
