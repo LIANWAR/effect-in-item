@@ -6,8 +6,8 @@ import org.bukkit.ChatColor
 import org.bukkit.Particle
 import org.bukkit.entity.Player
 
-class testEffect: EffectInterface {
-    override val meta: EffectMeta = EffectMeta("test", "${ChatColor.GOLD}테스트 이펙트", listOf("테스트 이펙트입니다.", "푸틴 반동놈"))
+class WalkEffect220326: EffectInterface {
+    override val meta: EffectMeta = EffectMeta("walking_220326", "${ChatColor.GRAY}발자취 1", listOf("그냥 걸어보세요!"))
 
     override fun effect(p: Player) {
         playerEffCheck(p)
@@ -16,7 +16,7 @@ class testEffect: EffectInterface {
             getInstance().server.scheduler.scheduleSyncRepeatingTask(
                 getInstance(),
                 {
-                    p.world.spawnParticle(Particle.ELECTRIC_SPARK, p.location, 10)
+                    p.world.spawnParticle(Particle.CLOUD, p.location, 10)
                 },
                 0L,
                 2L
