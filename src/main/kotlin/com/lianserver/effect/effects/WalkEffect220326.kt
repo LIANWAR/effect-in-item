@@ -12,11 +12,11 @@ class WalkEffect220326: EffectInterface {
     override fun effect(p: Player) {
         playerEffCheck(p)
 
-        getInstance().playerEffTasks[p.uniqueId.toString()]!![meta.id]!!.add(
+        getInstance().playerEffTasks[p.uniqueId.toString()]!![this.meta.id]!!.add(
             getInstance().server.scheduler.scheduleSyncRepeatingTask(
                 getInstance(),
                 {
-                    p.world.spawnParticle(Particle.CLOUD, p.location, 10)
+                    p.world.spawnParticle(Particle.CLOUD, p.location, 3, 0.075, 0.05, 0.075)
                 },
                 0L,
                 2L

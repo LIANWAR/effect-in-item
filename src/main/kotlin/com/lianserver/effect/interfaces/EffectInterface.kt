@@ -12,6 +12,6 @@ interface EffectInterface: Listener {
 
     fun effect(p: Player)
     fun playerEffCheck(p: Player){
-        if(!getInstance().playerEffTasks.containsKey(p.uniqueId.toString())) getInstance().playerEffTasks[p.uniqueId.toString()] = mutableMapOf(meta.id to mutableListOf())
+        if(!getInstance().playerEffTasks.containsKey(p.uniqueId.toString())) getInstance().playerEffTasks[p.uniqueId.toString()] = mutableMapOf(this.meta.id to mutableListOf())
     }
 }

@@ -44,7 +44,7 @@ class EffectMenuKommand: KommandInterface {
                             }
                             else {
                                 l.remove(eff.meta.id)
-                                getInstance().playerEffTasks[player.uniqueId.toString()]!![eff.meta.id]!!.forEach {
+                                (getInstance().playerEffTasks[player.uniqueId.toString()]!![eff.meta.id] ?: listOf()).forEach {
                                     getInstance().server.scheduler.cancelTask(it)
                                 }
 
