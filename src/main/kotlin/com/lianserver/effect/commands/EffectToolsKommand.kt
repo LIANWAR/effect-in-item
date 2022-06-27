@@ -13,8 +13,11 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
+import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
+import java.io.File
 
 class EffectToolsKommand: KommandInterface {
     override fun kommand() {
@@ -125,6 +128,15 @@ class EffectToolsKommand: KommandInterface {
 
                 guiEffectList.update()
                 guiEffectList.show(player)
+            }
+        }
+        register(getInstance(), "effrld"){
+            requires { sender is ConsoleCommandSender || sender.isOp }
+            executes {
+                getInstance().userEffDB = YamlConfiguration.loadConfiguration(File(getInstance().dataFolder, "db.yml"))
+                getInstance().playerEffectConfData = YamlConfiguration.loadConfiguration(File(getInstance().dataFolder, "pldb.yml"))
+
+                sender.sendMessage(adminText("데이터를 새로고침했습니다."))
             }
         }
     }
